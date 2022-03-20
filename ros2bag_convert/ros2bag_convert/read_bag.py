@@ -8,15 +8,18 @@ from rclpy.serialization import deserialize_message
 from . import message_converter
 import json
 
+
 def connect(sqlite_file):
     """ Make connection to an SQLite database file. """
     connection = sqlite3.connect(sqlite_file)
     cursor = connection.cursor()
     return connection, cursor
 
+
 def close(connection):
     """ Close connection to the database. """
     connection.close()
+
 
 def count_rows(cursor, table_name, print_out=False):
     """ Returns the total number of rows in the database. """
@@ -25,6 +28,7 @@ def count_rows(cursor, table_name, print_out=False):
     if print_out:
         print('\nTotal rows: {}'.format(count[0][0]))
     return count[0][0]
+
 
 def get_headers(cursor, table_name, print_out=False):
     """ Returns a list of tuples with column informations:
@@ -39,6 +43,7 @@ def get_headers(cursor, table_name, print_out=False):
             print(col)
     return info
 
+
 def get_all_elements(cursor, table_name, print_out=False):
     """ Returns a dictionary with all elements of the table database.
     """
@@ -50,6 +55,7 @@ def get_all_elements(cursor, table_name, print_out=False):
         for row in records:
             print(row)
     return records
+
 
 def is_topic(cursor, topic_name, print_out=False):
     """ Returns topic_name header if it exists. If it doesn't, returns empty.
@@ -63,17 +69,18 @@ def is_topic(cursor, topic_name, print_out=False):
 
     # Look for specific 'topic_name' in 'records'
     for row in records:
-        if(row[1] == topic_name): # 1 is 'name' TODO
+        if (row[1] == topic_name):  # 1 is 'name' TODO
             bool_is_topic = True
             topicFound = row
     if print_out:
         if bool_is_topic:
-             # 1 is 'name', 0 is 'id' TODO
-            print('\nTopic named', topicFound[1], ' exists at id ', topicFound[0] ,'\n')
+            # 1 is 'name', 0 is 'id' TODO
+            print('\nTopic named', topicFound[1], ' exists at id ', topicFound[0], '\n')
         else:
-            print('\nTopic', topic_name ,'could not be found. \n')
+            print('\nTopic', topic_name, 'could not be found. \n')
 
     return topicFound
+
 
 def get_all_msgs_from_topic(cursor, topic_name, print_out=False):
     """ Returns all timestamps and messages from specific topic.
@@ -88,22 +95,23 @@ def get_all_msgs_from_topic(cursor, topic_name, print_out=False):
 
     # If not find return empty
     if not topicFound:
-        print('Topic', topic_name ,'could not be found. \n')
+        print('Topic', topic_name, 'could not be found. \n')
     else:
         records = get_all_elements(cursor, 'messages', print_out=False)
 
         # Look for message with the same id from the topic
         for row in records:
-            if row[1] == topicFound[0]:     # 1 and 0 is 'topic_id' TODO
-                count = count + 1           # count messages for this topic
-                timestamps.append(row[2])   # 2 is for timestamp TODO
-                messages.append(row[3])     # 3 is for all messages
+            if row[1] == topicFound[0]:  # 1 and 0 is 'topic_id' TODO
+                count = count + 1  # count messages for this topic
+                timestamps.append(row[2])  # 2 is for timestamp TODO
+                messages.append(row[3])  # 3 is for all messages
 
         # Print
         if print_out:
             print('\nThere are ', count, 'messages in ', topicFound[1])
 
     return timestamps, messages
+
 
 def get_all_topics_names(cursor, print_out=False):
     """ Returns all topics names.
@@ -121,6 +129,7 @@ def get_all_topics_names(cursor, print_out=False):
 
     return topicNames
 
+
 def get_all_msgs_types(cursor, print_out=False):
     """ Returns all messages types.
     """
@@ -136,6 +145,7 @@ def get_all_msgs_types(cursor, print_out=False):
         print(msgsTypes)
 
     return msgsTypes
+
 
 def get_msg_type(cursor, topic_name, print_out=False):
     """ Returns the message from specific topic.
@@ -154,6 +164,7 @@ def get_msg_type(cursor, topic_name, print_out=False):
 
     return msg_type
 
+
 def read_from_topic(bag_file, topic_name, print_out=False):
     """ Returns all timestamps and messages from specific topic.
     Data is deserialized.
@@ -171,7 +182,7 @@ def read_from_topic(bag_file, topic_name, print_out=False):
     timestamps, messages_cdr = get_all_msgs_from_topic(cursor, topic_name, print_out=False)
 
     # Create a map for quicker lookup
-    type_map = {topic_names[i]:topic_types[i] for i in range(len(topic_types))}
+    type_map = {topic_names[i]: topic_types[i] for i in range(len(topic_types))}
     # Get message type
     msg_type = get_message(type_map[topic_name])
 
@@ -189,6 +200,7 @@ def read_from_topic(bag_file, topic_name, print_out=False):
     close(connection)
 
     return timestamps, messages
+
 
 def read_from_all_topics(bag_file, print_out=False):
     """ Returns all timestamps and messages from all topics.
