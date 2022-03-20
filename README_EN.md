@@ -1,10 +1,16 @@
 # ros2bag_convert
 
-[Chinese](README.md) | [English](README_EN.md)
+[Español](README.md) | [English](README_EN.md)
 
 ** Convert ROS2 Bag files to CSV, JSON, etc. **
 
 ## I. Installation
+
+###Command line installation local:
+
+1º clone repo
+
+2º pip install ros2bag_convert/
 
 Command line installation.
 
